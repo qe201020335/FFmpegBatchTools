@@ -2,48 +2,56 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FFMpegCore;
+using Newtonsoft.Json;
 
 namespace BatchExtract
 {
     internal class Program
     {
+        private const string SUFFIX = "_extracted";
         private static string prgname;
-        private static void Extract(string path)
+        private static string ConfName;
+        private static string ConfPath;
+        private static Configuration Configuration => Configuration.Instance;
+
+        private static async Task Extract(string path)
         {
             var nameWithoutExtension = Path.GetFileNameWithoutExtension(path);
             var parent = Path.GetDirectoryName(path);
             var extension = Path.GetExtension(path);
-            var newpath = parent + "\\" + nameWithoutExtension + "_extracted" + extension;
+            var newpath = parent + "\\" + nameWithoutExtension + SUFFIX + extension;
 
             try
             {
-                // var process = new Process
-                // {
-                //     StartInfo = new ProcessStartInfo
-                //     {
-                //         FileName = "ffmpeg.exe",
-                //         Arguments = $"-v verbose -i \"{path}\" -map 0:v -map 0:a:3 -c copy -y \"{newpath}\"",
-                //         UseShellExecute = false, 
-                //         CreateNoWindow = true,
-                //         RedirectStandardOutput = true,
-                //         RedirectStandardInput = true,
-                //         RedirectStandardError = true,
-                //     }
-                // };
-                // process.Start();
-                // process.OutputDataReceived += (sender, args) => Console.WriteLine(args.Data);
-                // process.ErrorDataReceived += (sender, args) => Console.WriteLine(args.Data); 
-                // process.BeginOutputReadLine();
-                // process.BeginErrorReadLine();
-                // process.WaitForExit(-1);
-                FFMpegArguments.FromFileInput(path)
-                    .OutputToFile(newpath, true, options => options.SelectStream(0).SelectStream(4).CopyChannel())
-                    .ProcessSynchronously();
+
+                await FFMpegArguments.FromFileInput(path)
+                    .OutputToFile(newpath, true,
+                        options => Configuration.ExtractStreams.Aggregate(options, (op, num) => op.SelectStream(num))
+                            .CopyChannel()).ProcessAsynchronously();
+                
+                var oldFile = new FileInfo(path);
+                var newFile = new FileInfo(newpath);
+                
+                if (Configuration.CopyModifiedTime)
+                {
+                    newFile.LastWriteTime = oldFile.LastWriteTime;
+                }
+                if (Configuration.DeleteOriginal)
+                {
+                    oldFile.Delete();
+                    Console.WriteLine($"old file deleted: {path}");
+                    if (Configuration.CopyFileName)
+                    {
+                        Console.WriteLine("Rename to old file name");
+                        newFile.MoveTo(path);
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -51,10 +59,35 @@ namespace BatchExtract
             }
         }
 
+        private static void DealWithConfig()
+        {
+            if (File.Exists(ConfPath))
+            {
+                using (var file = File.OpenText(ConfPath))
+                {
+                    var serializer = new JsonSerializer();
+                    Configuration.Instance = (Configuration) serializer.Deserialize(file, typeof(Configuration));
+                }
+            }
+            else
+            {
+                Configuration.Instance = new Configuration();
+            }
+            //TODO Show a config menu
+            using (var file = File.CreateText(ConfPath))
+            {
+                var serializer = new JsonSerializer();
+                serializer.Serialize(file, Configuration.Instance);
+            }
+        }
         public static void Main(string[] args)
         {
-            AssemblyName ver = typeof(Program).Assembly.GetName();
-            prgname = ver.Name;
+            var ass = Assembly.GetExecutingAssembly();
+            prgname = ass.GetName().Name;
+            ConfName = prgname + ".json";
+            ConfPath = Path.Combine(Path.GetDirectoryName(ass.Location), ConfName);
+            
+            DealWithConfig();
             
             int len = args.Length;
             if (len == 0)
@@ -75,7 +108,7 @@ namespace BatchExtract
                         continue;  // not exist
                     }
                     var fullpath = Path.GetFullPath(arg);
-                    tasks.Add(Task.Factory.StartNew(() => Extract(fullpath)));
+                    tasks.Add(Extract(fullpath));
                 }
                 catch (Exception e)
                 {
