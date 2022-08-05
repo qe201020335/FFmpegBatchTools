@@ -15,9 +15,9 @@ namespace BatchCompress
         [JsonProperty("CQP")] public float CQP = 18;
 
         [JsonProperty("DeleteOriginal")] public bool DeleteOriginal = true;
-        
+
         [JsonProperty("CopyModifiedTime")] public bool CopyModifiedTime = true;
-        
+
         [JsonProperty("CopyFileName")] public bool CopyFileName = true;
 
         [JsonProperty("LogLevel")]
@@ -32,5 +32,10 @@ namespace BatchCompress
         }
 
         [JsonIgnore] private string _logLevel = "info";
+
+        [JsonProperty("UseDedicatedOutputPath")]
+        public bool UseDedicatedOutputPath = false;
+
+        [JsonProperty("DedicatedOutputPath")] public string DedicatedOutputPath = "./";
     }
 }
