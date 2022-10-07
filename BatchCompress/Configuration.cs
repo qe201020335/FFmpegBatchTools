@@ -33,9 +33,13 @@ namespace BatchCompress
 
         [JsonIgnore] private string _logLevel = "info";
 
-        [JsonProperty("UseDedicatedOutputPath")]
-        public bool UseDedicatedOutputPath = false;
+        [JsonProperty("SelectOutputDir")]
+        public bool SelectOutputDir = false;
 
-        [JsonProperty("DedicatedOutputPath")] public string DedicatedOutputPath = "./";
+        public bool UseCustomFileExtension = true;
+
+        public string CustomFileExtension = ".mp4";
+
+        public string LastOutputDir = "";
     }
 }

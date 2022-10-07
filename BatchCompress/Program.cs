@@ -18,15 +18,21 @@ namespace BatchCompress
         private static string prgname;
         private static string ConfName;
         private static string ConfPath;
+        private static string ProgramDir;
         private static Configuration Configuration => Configuration.Instance;
-        private static void Run(string path)
+
+        private static bool _useSelectedDir = false;
+        private static string _selectedDir;
+        private static FolderBrowserDialog _outputDirDialog = new FolderBrowserDialog();
+
+        private static bool Run(string path)
         {
             var nameWithoutExtension = Path.GetFileNameWithoutExtension(path);
             var parent = Path.GetDirectoryName(path);
-            var extension = Path.GetExtension(path);
+            var extension = Configuration.UseCustomFileExtension ? Configuration.CustomFileExtension : Path.GetExtension(path);
 
-            var newpath = parent + "\\" + nameWithoutExtension + SUFFIX + extension;
-            
+            var newpath = (_useSelectedDir ? _selectedDir : parent) + "\\" + nameWithoutExtension + SUFFIX + extension;
+
             try
             {
                 var process = new Process
@@ -34,8 +40,9 @@ namespace BatchCompress
                     StartInfo = new ProcessStartInfo
                     {
                         FileName = "NVEncC64.exe",
-                        Arguments = $"-i \"{path}\" --cqp {Configuration.CQP} -u P7 --audio-copy -o \"{newpath}\" --log-level {Configuration.LogLevel} --log-opt addtime=on",
-                        UseShellExecute = false, 
+                        Arguments =
+                            $"-i \"{path}\" -o \"{newpath}\" --cqp {Configuration.CQP} -u P7 --audio-copy --sub-copy --chapter-copy --data-copy --attachment-copy --log-level {Configuration.LogLevel} --log-opt addtime=on",
+                        UseShellExecute = false,
                         CreateNoWindow = true,
                         RedirectStandardOutput = true,
                         RedirectStandardInput = true,
@@ -44,7 +51,7 @@ namespace BatchCompress
                 };
                 process.Start();
                 process.OutputDataReceived += (sender, args) => Console.WriteLine(args.Data);
-                process.ErrorDataReceived += (sender, args) => Console.WriteLine(args.Data); 
+                process.ErrorDataReceived += (sender, args) => Console.WriteLine(args.Data);
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
                 process.WaitForExit(-1);
@@ -52,9 +59,23 @@ namespace BatchCompress
                 var oldFile = new FileInfo(path);
                 var newFile = new FileInfo(newpath);
 
+                if (process.ExitCode != 0)
+                {
+                    Console.WriteLine($"{process.StartInfo.FileName} Exited with error!");
+                    switch (MessageBox.Show($"{process.StartInfo.FileName} Exited with error! Continue?", "Error!", MessageBoxButtons.YesNo))
+                    {
+                        case DialogResult.Yes:
+                            Console.WriteLine("Continue.");
+                            return true;
+                        case DialogResult.No:
+                            Console.WriteLine("Abort.");
+                            return false;
+                    }
+                }
+
                 Console.WriteLine($"Old file {Utils.GetBytesReadable(oldFile.Length)}," +
                                   $" New file {Utils.GetBytesReadable(newFile.Length)}");
-                
+
                 if (newFile.Length > oldFile.Length)
                 {
                     Console.WriteLine($"new file is larger, deleting: {newpath}");
@@ -66,6 +87,7 @@ namespace BatchCompress
                     {
                         newFile.LastWriteTime = oldFile.LastWriteTime;
                     }
+
                     if (Configuration.DeleteOriginal)
                     {
                         oldFile.Delete();
@@ -75,7 +97,6 @@ namespace BatchCompress
                             Console.WriteLine("Rename to old file name");
                             newFile.MoveTo(path);
                         }
-
                     }
                 }
             }
@@ -83,8 +104,10 @@ namespace BatchCompress
             {
                 Console.WriteLine(e.Message);
             }
+
+            return true;
         }
-        
+
         private static void DealWithConfig()
         {
             if (File.Exists(ConfPath))
@@ -92,13 +115,26 @@ namespace BatchCompress
                 using (var file = File.OpenText(ConfPath))
                 {
                     var serializer = new JsonSerializer();
-                    Configuration.Instance = (Configuration) serializer.Deserialize(file, typeof(Configuration));
+                    Configuration.Instance = (Configuration)serializer.Deserialize(file, typeof(Configuration));
                 }
             }
             else
             {
                 Configuration.Instance = new Configuration();
             }
+            
+            if (Configuration.SelectOutputDir)
+            {
+                _outputDirDialog.SelectedPath = Directory.Exists(Configuration.LastOutputDir) ? Configuration.LastOutputDir : ProgramDir;
+                if (_outputDirDialog.ShowDialog() == DialogResult.OK)
+                {
+                    Console.WriteLine(_outputDirDialog.SelectedPath);
+                    _useSelectedDir = true;
+                    _selectedDir = _outputDirDialog.SelectedPath;
+                    Configuration.LastOutputDir = _outputDirDialog.SelectedPath;
+                }
+            }
+
             //TODO Show a config menu
             using (var file = File.CreateText(ConfPath))
             {
@@ -106,14 +142,16 @@ namespace BatchCompress
                 serializer.Serialize(file, Configuration.Instance);
             }
         }
-        
+
+        [STAThread]
         public static void Main(string[] args)
         {
             var ass = Assembly.GetExecutingAssembly();
             prgname = ass.GetName().Name;
             ConfName = prgname + ".json";
-            ConfPath = Path.Combine(Path.GetDirectoryName(ass.Location), ConfName);
-            
+            ProgramDir = Path.GetDirectoryName(ass.Location) ?? "";
+            ConfPath = Path.Combine(ProgramDir, ConfName);
+
             DealWithConfig();
 
             var len = args.Length;
@@ -122,7 +160,7 @@ namespace BatchCompress
                 MessageBox.Show("Drag video files on this tool.", prgname);
                 return;
             }
-            
+
             foreach (var arg in args)
             {
                 try
@@ -130,17 +168,21 @@ namespace BatchCompress
                     if (!File.Exists(arg))
                     {
                         Console.WriteLine(arg + " DOES NOT EXIST");
-                        continue;  // not exist
+                        continue; // not exist
                     }
+
                     var fullpath = Path.GetFullPath(arg);
-                    Run(fullpath);
+                    if (!Run(fullpath))
+                    {
+                        return;
+                    }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.ToString());
                 }
             }
-            
+
             Console.Write("\a");
             MessageBox.Show("Done.", prgname);
         }
