@@ -14,5 +14,9 @@ Encode video with H.264 NVEnc and delete the original file if output file is sma
 ## BatchExtract
 Extract some tracks of the input file to a single output file. No config file at the moment.
 
+**Require [`ffmpeg.exe`](https://ffmpeg.org/) accessible on PATH**
+
+## BatchFFmpeg
+Process files with the same FFmpeg options in batch. No config file at the moment (FFmpeg arguments currently hard coded :P).
 
 **Require [`ffmpeg.exe`](https://ffmpeg.org/) accessible on PATH**
