@@ -25,13 +25,13 @@ namespace BatchCompress
         private static string _selectedDir;
         private static FolderBrowserDialog _outputDirDialog = new FolderBrowserDialog();
 
-        private static bool Run(string path)
+        private static bool Run(string inPath)
         {
-            var nameWithoutExtension = Path.GetFileNameWithoutExtension(path);
-            var parent = Path.GetDirectoryName(path);
-            var extension = Configuration.UseCustomFileExtension ? Configuration.CustomFileExtension : Path.GetExtension(path);
-
-            var newpath = (_useSelectedDir ? _selectedDir : parent) + "\\" + nameWithoutExtension + SUFFIX + extension;
+            var nameWithoutExtension = Path.GetFileNameWithoutExtension(inPath);
+            var inParent = Path.GetDirectoryName(inPath);
+            var extension = Configuration.UseCustomFileExtension ? Configuration.CustomFileExtension : Path.GetExtension(inPath);
+            var outParent = _useSelectedDir ? _selectedDir : inParent;
+            var outPath = outParent + "\\" + nameWithoutExtension + SUFFIX + extension;
 
             try
             {
@@ -41,7 +41,7 @@ namespace BatchCompress
                     {
                         FileName = "NVEncC64.exe",
                         Arguments =
-                            $"-i \"{path}\" -o \"{newpath}\" --cqp {Configuration.CQP} -u P7 --audio-copy --sub-copy --chapter-copy --data-copy --attachment-copy --log-level {Configuration.LogLevel} --log-opt addtime=on {Configuration.ExtraArguments}",
+                            $"-i \"{inPath}\" -o \"{outPath}\" --cqp {Configuration.CQP} -u P7 --audio-copy --sub-copy --chapter-copy --data-copy --attachment-copy --log-level {Configuration.LogLevel} --log-opt addtime=on {Configuration.ExtraArguments}",
                         UseShellExecute = false,
                         CreateNoWindow = true,
                         RedirectStandardOutput = true,
@@ -56,8 +56,8 @@ namespace BatchCompress
                 process.BeginErrorReadLine();
                 process.WaitForExit(-1);
 
-                var oldFile = new FileInfo(path);
-                var newFile = new FileInfo(newpath);
+                var inFile = new FileInfo(inPath);
+                var outFile = new FileInfo(outPath);
 
                 if (process.ExitCode != 0)
                 {
@@ -70,33 +70,39 @@ namespace BatchCompress
                         case DialogResult.No:
                             Console.WriteLine("Abort.");
                             return false;
+                        default:
+                            return true;
                     }
                 }
 
-                Console.WriteLine($"Old file {Utils.GetBytesReadable(oldFile.Length)}," +
-                                  $" New file {Utils.GetBytesReadable(newFile.Length)}");
+                Console.WriteLine($"Old file {Utils.GetBytesReadable(inFile.Length)}," +
+                                  $" New file {Utils.GetBytesReadable(outFile.Length)}");
 
-                if (newFile.Length > oldFile.Length)
+                if (outFile.Length > inFile.Length)
                 {
-                    Console.WriteLine($"new file is larger, deleting: {newpath}");
-                    newFile.Delete();
+                    Console.WriteLine($"New file is larger, deleting: {outPath}");
+                    outFile.Delete();
+                    return true;
                 }
-                else
+                
+                if (Configuration.CopyModifiedTime)
                 {
-                    if (Configuration.CopyModifiedTime)
-                    {
-                        newFile.LastWriteTime = oldFile.LastWriteTime;
-                    }
+                    outFile.LastWriteTime = inFile.LastWriteTime;
+                }
 
-                    if (Configuration.DeleteOriginal)
+                if (Configuration.DeleteOriginal)
+                {
+                    inFile.Delete();
+                    Console.WriteLine($"old file deleted: {inPath}");
+                }
+
+                if (Configuration.CopyFileName )
+                {
+                    var newName = Path.Combine(outParent, nameWithoutExtension + extension);
+                    if (Configuration.DeleteOriginal || newName != outPath)
                     {
-                        oldFile.Delete();
-                        Console.WriteLine($"old file deleted: {path}");
-                        if (Configuration.CopyFileName)
-                        {
-                            Console.WriteLine("Rename to old file name");
-                            newFile.MoveTo(path);
-                        }
+                        Console.WriteLine("Rename to old file name");
+                        outFile.MoveTo(newName);
                     }
                 }
             }
