@@ -99,7 +99,7 @@ namespace BatchCompress
                 if (Configuration.CopyFileName )
                 {
                     var newName = Path.Combine(outParent, nameWithoutExtension + extension);
-                    if (Configuration.DeleteOriginal || newName != outPath)
+                    if (Configuration.DeleteOriginal || newName != inPath)
                     {
                         Console.WriteLine("Rename to old file name");
                         outFile.MoveTo(newName);
