@@ -41,7 +41,7 @@ namespace BatchCompress
                     {
                         FileName = "NVEncC64.exe",
                         Arguments =
-                            $"-i \"{path}\" -o \"{newpath}\" --cqp {Configuration.CQP} -u P7 --audio-copy --sub-copy --chapter-copy --data-copy --attachment-copy --log-level {Configuration.LogLevel} --log-opt addtime=on",
+                            $"-i \"{path}\" -o \"{newpath}\" --cqp {Configuration.CQP} -u P7 --audio-copy --sub-copy --chapter-copy --data-copy --attachment-copy --log-level {Configuration.LogLevel} --log-opt addtime=on {Configuration.ExtraArguments}",
                         UseShellExecute = false,
                         CreateNoWindow = true,
                         RedirectStandardOutput = true,

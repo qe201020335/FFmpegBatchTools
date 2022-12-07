@@ -41,5 +41,7 @@ namespace BatchCompress
         public string CustomFileExtension = ".mp4";
 
         public string LastOutputDir = "";
+
+        public string ExtraArguments = "";
     }
 }
