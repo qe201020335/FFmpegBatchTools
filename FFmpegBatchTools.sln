@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BatchFFmpeg", "BatchFFmpeg\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFmpegBatchTools.Shared", "FFmpegBatchTools.Shared\FFmpegBatchTools.Shared.csproj", "{1FE0225B-098E-4306-A50F-BBB5E6BC8431}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BatchMerge", "BatchMerge\BatchMerge.csproj", "{B23DEF5A-BE72-4EC9-80C1-E001709614BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{1FE0225B-098E-4306-A50F-BBB5E6BC8431}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1FE0225B-098E-4306-A50F-BBB5E6BC8431}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1FE0225B-098E-4306-A50F-BBB5E6BC8431}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B23DEF5A-BE72-4EC9-80C1-E001709614BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B23DEF5A-BE72-4EC9-80C1-E001709614BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B23DEF5A-BE72-4EC9-80C1-E001709614BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B23DEF5A-BE72-4EC9-80C1-E001709614BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

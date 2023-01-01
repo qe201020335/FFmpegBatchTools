@@ -1,0 +1,83 @@
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using FFmpegBatchTools.Shared;
+
+namespace BatchMerge
+{
+    internal class Program : ProgramBase<Configuration>
+    {
+        protected override bool Run(string inPath)
+        {
+            var nameWithoutExtension = Path.GetFileNameWithoutExtension(inPath);
+            var inParent = Path.GetDirectoryName(inPath)!;
+            var extension = ".mkv";
+            var outParent = UseSelectedDir ? SelectedDir ?? inParent : inParent;
+            var outPath = Path.Combine(outParent,  nameWithoutExtension + "_merged" + extension);
+
+            try
+            {
+                var inputFiles = Directory.GetFiles(inParent).Where(fileName => fileName.ToLower().StartsWith(nameWithoutExtension.ToLower()))
+                    .Aggregate("", (s, fileName) => $"{s} {fileName}");
+                
+                
+                var result1 = Utils.StartProcess("mkvmerge.exe", $"{inputFiles} -o {outPath}");
+                if (result1 > 1) return true;
+                if (result1 < 0) return false;
+
+                var fonts = Directory.GetFiles(Path.Combine(inParent, "fonts")).Aggregate("", (s, fileName) => $"{s} --add-attachment {fileName}");
+
+                var result2 = Utils.StartProcess("mkvpropedit.exe", $"{outPath} {fonts}");
+                if (result2 > 1) return true;
+                if (result2 < 0) return false;
+
+                var inFile = new FileInfo(inPath);
+                var outFile = new FileInfo(outPath);
+                
+
+                if (Configuration.CopyModifiedTime)
+                {
+                    outFile.LastWriteTime = inFile.LastWriteTime;
+                }
+
+                // if (Configuration.DeleteOriginal)
+                // {
+                //     inFile.Delete();
+                //     Console.WriteLine($"old file deleted: {inPath}");
+                // }
+
+                if (Configuration.CopyFileName)
+                {
+                    var newName = Path.Combine(outParent, nameWithoutExtension + extension);
+                    if (newName != inPath)
+                    {
+                        Console.WriteLine("Rename to old file name");
+                        outFile.MoveTo(newName);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
+
+            return true;
+        }
+
+        [STAThread]
+        public static void Main(string[] args)
+        {
+            var program = new Program();
+
+            if (!program.BatchRun(args))
+            {
+                Console.WriteLine("\a");
+                Console.WriteLine("There are errors\nPress Enter to exit.");
+                Console.ReadLine();
+            }
+        }
+    }
+}
