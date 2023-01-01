@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using FFmpegBatchTools.Shared;
 
 namespace BatchMerge
@@ -19,7 +20,7 @@ namespace BatchMerge
 
             try
             {
-                var inputFiles = Directory.GetFiles(inParent).Where(fileName => fileName.ToLower().StartsWith(nameWithoutExtension.ToLower()))
+                var inputFiles = Directory.GetFiles(inParent).Where(fileName => Path.GetFileNameWithoutExtension(fileName).ToLower().StartsWith(nameWithoutExtension.ToLower()))
                     .Aggregate("", (s, fileName) => $"{s} {fileName}");
                 
                 
@@ -70,6 +71,7 @@ namespace BatchMerge
         [STAThread]
         public static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
             var program = new Program();
 
             if (!program.BatchRun(args))

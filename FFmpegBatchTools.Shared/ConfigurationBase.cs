@@ -14,10 +14,10 @@ namespace FFmpegBatchTools.Shared
         public bool SelectOutputDir = false;
 
         [JsonProperty("UseCustomFileExtension")]
-        public bool UseCustomFileExtension = true;
+        public bool UseCustomFileExtension = false;
 
         [JsonProperty("CustomFileExtension")]
-        public string CustomFileExtension = ".mp4";
+        public string CustomFileExtension = ".mkv";
 
         [JsonProperty("LastOutputDir")]
         public string LastOutputDir = "";
