@@ -10,6 +10,9 @@ namespace BatchMerge
 {
     internal class Program : ProgramBase<Configuration>
     {
+
+        private int? _subTrack;
+
         protected override bool Run(string inPath)
         {
             var nameWithoutExtension = Path.GetFileNameWithoutExtension(inPath);
@@ -20,17 +23,30 @@ namespace BatchMerge
 
             try
             {
-                var inputFiles = Directory.GetFiles(inParent).Where(fileName => Path.GetFileNameWithoutExtension(fileName).ToLower().StartsWith(nameWithoutExtension.ToLower()))
-                    .Aggregate("", (s, fileName) => $"{s} {fileName}");
+                var inputFiles = Directory
+                    .GetFiles(inParent)
+                    .Where(fileName => Path
+                        .GetFileNameWithoutExtension(fileName)
+                        .ToLower()
+                        .StartsWith(nameWithoutExtension.ToLower()))
+                    .Aggregate(new StringBuilder(), (s, fileName) =>s.Append(" ").Append(fileName.Quote()));
                 
                 
-                var result1 = Utils.StartProcess("mkvmerge.exe", $"{inputFiles} -o {outPath}");
+                var result1 = Utils.StartProcess("mkvmerge.exe", $"{inputFiles} -o {outPath.Quote()}");
                 if (result1 > 1) return true;
                 if (result1 < 0) return false;
 
-                var fonts = Directory.GetFiles(Path.Combine(inParent, "fonts")).Aggregate("", (s, fileName) => $"{s} --add-attachment {fileName}");
+                string fonts = "";
+                if (Directory.Exists(Path.Combine(inParent, "fonts")))
+                {
+                    fonts = Directory
+                        .GetFiles(Path.Combine(inParent, "fonts"))
+                        .Aggregate(new StringBuilder(" "), (s, fileName) => s.Append($" --add-attachment {fileName.Quote()}"))
+                        .ToString();
+                }
 
-                var result2 = Utils.StartProcess("mkvpropedit.exe", $"{outPath} {fonts}");
+                var subArg = _subTrack == null ? "" : $" --edit track:s{_subTrack} --set language=zh";
+                var result2 = Utils.StartProcess("mkvpropedit.exe", $"{outPath.Quote()}{fonts}{subArg}");
                 if (result2 > 1) return true;
                 if (result2 < 0) return false;
 
@@ -73,6 +89,12 @@ namespace BatchMerge
         {
             Console.OutputEncoding = Encoding.UTF8;
             var program = new Program();
+            
+            Console.WriteLine("Subtitle Track? (Start from 1)");
+            if (int.TryParse(Console.ReadLine(), out var i))
+            {
+                program._subTrack = i;
+            }
 
             if (!program.BatchRun(args))
             {

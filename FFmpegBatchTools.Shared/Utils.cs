@@ -4,10 +4,11 @@ using System.Windows.Forms;
 
 namespace FFmpegBatchTools.Shared
 {
-    public class Utils
+    public static class Utils
     {
         public static int StartProcess(string exe, string arguments)
         {
+            Console.WriteLine($"Launching {exe} with arguments: {arguments}");
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -45,6 +46,11 @@ namespace FFmpegBatchTools.Shared
             }
 
             return 0;
+        }
+
+        public static string Quote(this string s)
+        {
+            return "\"" + s + "\"";
         }
     }
 }
