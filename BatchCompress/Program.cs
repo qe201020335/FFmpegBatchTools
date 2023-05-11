@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FFmpegBatchTools.Shared;
 using FFMpegCore;
 using FFMpegCore.Enums;
 using Newtonsoft.Json;
@@ -35,45 +37,37 @@ namespace BatchCompress
 
             try
             {
-                var process = new Process
+                var arguments = new StringBuilder($"-i {inPath.Quote()} -o {outPath.Quote()}");
+                if (Configuration.Use265)
                 {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "NVEncC64.exe",
-                        Arguments =
-                            $"-i \"{inPath}\" -o \"{outPath}\" --cqp {Configuration.CQP} -u P7 --audio-copy --sub-copy --chapter-copy --data-copy --attachment-copy --log-level {Configuration.LogLevel} --log-opt addtime=on {Configuration.ExtraArguments}",
-                        UseShellExecute = false,
-                        CreateNoWindow = true,
-                        RedirectStandardOutput = true,
-                        RedirectStandardInput = true,
-                        RedirectStandardError = true,
-                    }
-                };
-                process.Start();
-                process.OutputDataReceived += (sender, args) => Console.WriteLine(args.Data);
-                process.ErrorDataReceived += (sender, args) => Console.WriteLine(args.Data);
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-                process.WaitForExit(-1);
+                    arguments.Append(" -c hevc --tier high");
+                }
+                else
+                {
+                    arguments.Append(" -c h264 --profile high");
+                }
+
+                arguments.Append(
+                    Configuration.UseQVBR
+                        ? $" --qvbr {Configuration.QVBR} --max-bitrate {Configuration.VBRMaxBitrate} --multipass 2pass-full"
+                        : $" --cqp {Configuration.CQP}"
+                );
+
+
+                arguments.Append(" --lookahead 32 -u P7 --audio-copy --sub-copy --chapter-copy --data-copy --attachment-copy");
+                arguments.Append($" --log-level {Configuration.LogLevel} --log-opt addtime=on {Configuration.ExtraArguments}");
+                var code = FFmpegBatchTools.Shared.Utils.StartProcess("NVEncC64.exe", arguments.ToString());
+                
+                switch (code)
+                {
+                    case 1:
+                        return true;
+                    case -1:
+                        return false;
+                }
 
                 var inFile = new FileInfo(inPath);
                 var outFile = new FileInfo(outPath);
-
-                if (process.ExitCode != 0)
-                {
-                    Console.WriteLine($"{process.StartInfo.FileName} Exited with error!");
-                    switch (MessageBox.Show($"{process.StartInfo.FileName} Exited with error! Continue?", "Error!", MessageBoxButtons.YesNo))
-                    {
-                        case DialogResult.Yes:
-                            Console.WriteLine("Continue.");
-                            return true;
-                        case DialogResult.No:
-                            Console.WriteLine("Abort.");
-                            return false;
-                        default:
-                            return true;
-                    }
-                }
 
                 Console.WriteLine($"Old file {Utils.GetBytesReadable(inFile.Length)}," +
                                   $" New file {Utils.GetBytesReadable(outFile.Length)}");

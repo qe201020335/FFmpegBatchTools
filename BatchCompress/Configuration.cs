@@ -13,6 +13,15 @@ namespace BatchCompress
             { "error", "warn", "info", "debug", "trace" };
 
         [JsonProperty("CQP")] public float CQP = 18;
+        
+        [JsonProperty("QVBR")] public float QVBR = 23;
+        
+        [JsonProperty("VBRMaxBitrate")] public float VBRMaxBitrate = 240000;
+
+        [JsonProperty("UseQVBR")] public bool UseQVBR = true;
+        
+        [JsonProperty("Use265")] public bool Use265 = true;
+        
 
         [JsonProperty("DeleteOriginal")] public bool DeleteOriginal = true;
 
