@@ -3,7 +3,7 @@ using FFmpegBatchTools.Core.Utils;
 
 namespace FFmpegBatchTools.Core.BatchCompress;
 
-public class BatchCompress : BatchBase<Config>
+public class BCompress : BatchBase<Config>
 {
     public override string Suffix { get; set; } = "_nvenc";
 
