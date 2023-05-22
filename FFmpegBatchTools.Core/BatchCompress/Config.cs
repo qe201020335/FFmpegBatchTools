@@ -32,8 +32,6 @@ public class Config
     public bool UseCustomFileExtension = true;
 
     public string CustomFileExtension = ".mp4";
-
-    public string LastOutputDir = "";
-
+    
     public string ExtraArguments = "";
 }

@@ -20,7 +20,7 @@ public class BCompress : BatchBase<Config>
                 ? $" --qvbr {Config.QVBR} --max-bitrate {Config.VBRMaxBitrate} --multipass 2pass-full"
                 : $" --cqp {Config.CQP}"
         );
-        
+
         arguments.Append(" --lookahead 32 -u P7 --audio-copy --sub-copy --chapter-copy --data-copy --attachment-copy");
         arguments.Append($" --log-level {Config.LogLevel} --log-opt addtime=on {Config.ExtraArguments}");
 
@@ -31,7 +31,7 @@ public class BCompress : BatchBase<Config>
             outPath = output;
             return false;
         }
-        
+
         var inFile = new FileInfo(inPath);
         var outFile = new FileInfo(output);
 

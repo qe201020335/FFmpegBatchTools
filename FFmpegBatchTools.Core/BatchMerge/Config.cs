@@ -1,9 +1,10 @@
-﻿namespace FFmpegBatchTools.Core.BatchMerge;
+﻿using Newtonsoft.Json;
+
+namespace FFmpegBatchTools.Core.BatchMerge;
 
 public class Config
 {
-    public bool SetTrackLanguage = false;
+    [JsonProperty("SetTrackLanguage")] public bool SetTrackLanguage = false;
 
-    public Dictionary<string, string> TrackLanguageMap = new();
-    
+    [JsonProperty("TrackLanguageMap")] public Dictionary<string, string> TrackLanguageMap = new();
 }
