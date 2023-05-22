@@ -1,5 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33712.159
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BatchExtract", "BatchExtract\BatchExtract.csproj", "{BB9E20DA-49D5-4980-9DA2-2CE58EF34A5D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BatchCompress", "BatchCompress\BatchCompress.csproj", "{E71B1B9C-1C5D-48FA-85D3-4552AE60407C}"
@@ -10,7 +13,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFmpegBatchTools.Shared", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BatchMerge", "BatchMerge\BatchMerge.csproj", "{B23DEF5A-BE72-4EC9-80C1-E001709614BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFmpegBatchTools.Core", "FFmpegBatchTools.Core\FFmpegBatchTools.Core.csproj", "{7162BAAF-15DA-4DF4-A8B9-364421C2105D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFmpegBatchTools.Core", "FFmpegBatchTools.Core\FFmpegBatchTools.Core.csproj", "{7162BAAF-15DA-4DF4-A8B9-364421C2105D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFmpegBatchTools", "FFmpegBatchTools\FFmpegBatchTools.csproj", "{61244291-B13D-48E9-876A-9411B15A8F4D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,5 +47,17 @@ Global
 		{7162BAAF-15DA-4DF4-A8B9-364421C2105D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7162BAAF-15DA-4DF4-A8B9-364421C2105D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7162BAAF-15DA-4DF4-A8B9-364421C2105D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61244291-B13D-48E9-876A-9411B15A8F4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61244291-B13D-48E9-876A-9411B15A8F4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61244291-B13D-48E9-876A-9411B15A8F4D}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{61244291-B13D-48E9-876A-9411B15A8F4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61244291-B13D-48E9-876A-9411B15A8F4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61244291-B13D-48E9-876A-9411B15A8F4D}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {983518F9-0364-4763-B146-B7995663B915}
 	EndGlobalSection
 EndGlobal
