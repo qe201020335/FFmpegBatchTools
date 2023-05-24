@@ -53,4 +53,8 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\FFmpegBatchTools.Core\FFmpegBatchTools.Core.csproj" />
+	</ItemGroup>
+
 </Project>
