@@ -21,7 +21,7 @@ public class BCompress : BatchBase<Config>
                 : $" --cqp {Config.CQP}"
         );
 
-        arguments.Append(" --lookahead 32 -u P7 --audio-copy --sub-copy --chapter-copy --data-copy --attachment-copy");
+        arguments.Append(" --lookahead 32 -u P7 --audio-copy --sub-copy --chapter-copy --data-copy --attachment-copy --colorrange auto");
         arguments.Append($" --log-level {Config.LogLevel} --log-opt addtime=on {Config.ExtraArguments}");
 
         var code = ProcessUtils.StartProcess("NVEncC64.exe", arguments.ToString());
