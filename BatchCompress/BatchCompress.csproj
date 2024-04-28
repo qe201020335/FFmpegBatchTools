@@ -34,6 +34,9 @@
         <WarningLevel>4</WarningLevel>
         <Prefer32bit>false</Prefer32bit>
     </PropertyGroup>
+    <PropertyGroup>
+      <ApplicationManifest>app.manifest</ApplicationManifest>
+    </PropertyGroup>
     <ItemGroup>
         <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
           <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.6.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
@@ -104,6 +107,12 @@
         <Name>FFmpegBatchTools.Shared</Name>
       </ProjectReference>
     </ItemGroup>
+    <ItemGroup>
+      <None Include="app.manifest" />
+    </ItemGroup>
+    <ItemGroup>
+      <Content Include="ILRepack.targets" />
+    </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <Import Project="..\packages\System.Text.Json.6.0.2\build\System.Text.Json.targets" Condition="Exists('..\packages\System.Text.Json.6.0.2\build\System.Text.Json.targets')" />
     <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -111,7 +120,9 @@
         <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
       </PropertyGroup>
       <Error Condition="!Exists('..\packages\System.Text.Json.6.0.2\build\System.Text.Json.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Text.Json.6.0.2\build\System.Text.Json.targets'))" />
+      <Error Condition="!Exists('..\packages\ILRepack.Lib.MSBuild.Task.2.0.31\build\ILRepack.Lib.MSBuild.Task.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\ILRepack.Lib.MSBuild.Task.2.0.31\build\ILRepack.Lib.MSBuild.Task.targets'))" />
     </Target>
+    <Import Project="..\packages\ILRepack.Lib.MSBuild.Task.2.0.31\build\ILRepack.Lib.MSBuild.Task.targets" Condition="Exists('..\packages\ILRepack.Lib.MSBuild.Task.2.0.31\build\ILRepack.Lib.MSBuild.Task.targets')" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.
     <Target Name="BeforeBuild">
