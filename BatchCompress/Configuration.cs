@@ -14,7 +14,7 @@ namespace BatchCompress
 
         [JsonProperty("CQP")] public float CQP = 18;
         
-        [JsonProperty("QVBR")] public float QVBR = 23;
+        [JsonProperty("QVBR")] public float QVBR = 18;
         
         [JsonProperty("VBRMaxBitrate")] public float VBRMaxBitrate = 240000;
 
@@ -23,7 +23,7 @@ namespace BatchCompress
         [JsonProperty("Use265")] public bool Use265 = true;
         
 
-        [JsonProperty("DeleteOriginal")] public bool DeleteOriginal = true;
+        [JsonProperty("DeleteOriginal")] public bool DeleteOriginal = false;
 
         [JsonProperty("CopyModifiedTime")] public bool CopyModifiedTime = true;
 
@@ -43,11 +43,11 @@ namespace BatchCompress
         [JsonIgnore] private string _logLevel = "info";
 
         [JsonProperty("SelectOutputDir")]
-        public bool SelectOutputDir = false;
+        public bool SelectOutputDir = true;
 
-        public bool UseCustomFileExtension = true;
+        public bool UseCustomFileExtension = false;
 
-        public string CustomFileExtension = ".mp4";
+        public string CustomFileExtension = ".mov";
 
         public string LastOutputDir = "";
 
