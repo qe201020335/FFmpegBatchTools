@@ -35,12 +35,6 @@
         <Prefer32bit>false</Prefer32bit>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="FFMpegCore, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-          <HintPath>..\packages\FFMpegCore.4.8.0\lib\netstandard2.0\FFMpegCore.dll</HintPath>
-        </Reference>
-        <Reference Include="Instances, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-          <HintPath>..\packages\Instances.2.0.0\lib\netstandard2.0\Instances.dll</HintPath>
-        </Reference>
         <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
           <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.6.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
         </Reference>
