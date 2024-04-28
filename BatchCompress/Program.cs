@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using FFmpegBatchTools.Shared;
 using Newtonsoft.Json;
@@ -16,6 +17,8 @@ namespace BatchCompress
         private static string ConfName;
         private static string ConfPath;
         private static string ProgramDir;
+
+        private static string nvenccpath;
         private static Configuration Configuration => Configuration.Instance;
 
         private static bool _useSelectedDir = false;
@@ -53,7 +56,7 @@ namespace BatchCompress
 
                 arguments.Append(" --lookahead 32 -u P7 --audio-copy --sub-copy --chapter-copy --data-copy --attachment-copy --colorrange auto");
                 arguments.Append($" --log-level {Configuration.LogLevel} --log-opt addtime=on {Configuration.ExtraArguments}");
-                var code = FFmpegBatchTools.Shared.Utils.StartProcess("NVEncC64.exe", arguments.ToString());
+                var code = FFmpegBatchTools.Shared.Utils.StartProcess(nvenccpath, arguments.ToString());
                 
                 switch (code)
                 {
@@ -150,8 +153,29 @@ namespace BatchCompress
             var ass = Assembly.GetExecutingAssembly();
             prgname = ass.GetName().Name;
             ConfName = prgname + ".json";
-            ProgramDir = Path.GetDirectoryName(ass.Location) ?? "";
+            ProgramDir = Path.GetDirectoryName(ass.Location) ?? Environment.CurrentDirectory;
             ConfPath = Path.Combine(ProgramDir, ConfName);
+            
+            nvenccpath = FFmpegBatchTools.Shared.Utils.FindNVEncC(ProgramDir) ?? "NVEncC64.exe";
+            
+            Console.WriteLine($"Using Nvencc: {nvenccpath}");
+            
+            try
+            {
+                var check = FFmpegBatchTools.Shared.Utils.StartProcess(nvenccpath, "--version");
+                if (check != 0)
+                {
+                    Console.WriteLine("NVEncC64 not found or not good.");
+                    MessageBox.Show("NVEncC64 not found or not good.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                MessageBox.Show($"Error checking NVEncC64: \n{e}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Environment.Exit(1);
+                return;
+            }
 
             DealWithConfig();
 
@@ -162,6 +186,9 @@ namespace BatchCompress
                 return;
             }
 
+            Console.WriteLine("Staring in 3...");
+            Thread.Sleep(3000);
+            
             var totalFiles = args.Length;
             foreach (var (file, i) in args.Select((value, i) => (value, i)))
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
 
 namespace FFmpegBatchTools.Shared
@@ -51,6 +52,27 @@ namespace FFmpegBatchTools.Shared
         public static string Quote(this string s)
         {
             return "\"" + s + "\"";
+        }
+        
+        public static string FindFFmpeg()
+        {
+            var path = Environment.GetEnvironmentVariable("PATH");
+            var paths = path.Split(';');
+            foreach (var p in paths)
+            {
+                if (p.Contains("ffmpeg"))
+                {
+                    return p;
+                }
+            }
+
+            return null;
+        }
+        
+        public static string? FindNVEncC(string baseFolder)
+        {
+            var path = Path.Combine(baseFolder, "NVEncC", "NVEncC64.exe");
+            return File.Exists(path) ? path : null;
         }
     }
 }
