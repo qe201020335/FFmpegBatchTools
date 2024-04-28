@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
@@ -161,17 +162,19 @@ namespace BatchCompress
                 return;
             }
 
-            foreach (var arg in args)
+            var totalFiles = args.Length;
+            foreach (var (file, i) in args.Select((value, i) => (value, i)))
             {
                 try
                 {
-                    if (!File.Exists(arg))
+                    if (!File.Exists(file))
                     {
-                        Console.WriteLine(arg + " DOES NOT EXIST");
+                        Console.WriteLine(file + " DOES NOT EXIST");
                         continue; // not exist
                     }
 
-                    var fullpath = Path.GetFullPath(arg);
+                    var fullpath = Path.GetFullPath(file);
+                    Console.Title = $"[{i + 1}/{totalFiles}] {Path.GetFileName(fullpath)}";
                     if (!Run(fullpath))
                     {
                         return;
