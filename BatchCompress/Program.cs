@@ -54,7 +54,7 @@ namespace BatchCompress
                 );
 
 
-                arguments.Append(" --lookahead 32 -u P7 --audio-copy --sub-copy --chapter-copy --data-copy --attachment-copy");
+                arguments.Append(" --lookahead 32 -u P7 --audio-copy --sub-copy --chapter-copy --data-copy --attachment-copy --colorrange auto");
                 arguments.Append($" --log-level {Configuration.LogLevel} --log-opt addtime=on {Configuration.ExtraArguments}");
                 var code = FFmpegBatchTools.Shared.Utils.StartProcess("NVEncC64.exe", arguments.ToString());
                 
