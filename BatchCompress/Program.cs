@@ -20,6 +20,8 @@ namespace BatchCompress
         private static bool _useSelectedDir = false;
         private static string _selectedDir;
         private static FolderBrowserDialog _outputDirDialog = new FolderBrowserDialog();
+        
+        private static readonly FileDialog _folderBrowser = new SaveFileDialog();
 
         private static bool Run(string inPath)
         {
@@ -119,14 +121,18 @@ namespace BatchCompress
             
             if (Configuration.SelectOutputDir)
             {
-                _outputDirDialog.SelectedPath = Directory.Exists(Configuration.LastOutputDir) ? Configuration.LastOutputDir : ProgramDir;
-                if (_outputDirDialog.ShowDialog() == DialogResult.OK)
+                _folderBrowser.Filter = "Directory|*.this.directory";
+                _folderBrowser.FileName = "select";
+                _folderBrowser.Title = "Backup to";
+                _folderBrowser.InitialDirectory = Directory.Exists(Configuration.LastOutputDir) ? Configuration.LastOutputDir : ProgramDir;
+
+                if (_folderBrowser.ShowDialog() == DialogResult.OK)
                 {
-                    Console.WriteLine(_outputDirDialog.SelectedPath);
+                    var outputFolder = Path.GetDirectoryName(_folderBrowser.FileName);
                     _useSelectedDir = true;
-                    _selectedDir = _outputDirDialog.SelectedPath;
+                    _selectedDir = outputFolder;
                     Configuration.LastOutputDir = _outputDirDialog.SelectedPath;
-                }
+                }                
             }
 
             //TODO Show a config menu
